@@ -1,0 +1,58 @@
+﻿@page
+@model PharmaSys.Pages.Suppliers.CreateModel
+@{
+    ViewData["Title"] = "Ajouter Fournisseur";
+}
+
+<div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+        <h2 class="fw-bold mb-1">Ajouter Fournisseur</h2>
+        <div class="text-muted">Créer une fiche fournisseur</div>
+    </div>
+    <a class="btn btn-light btn-pill" href="/Suppliers/Index"><i class="bi bi-x-lg"></i></a>
+</div>
+
+<div class="card-soft p-3">
+    <form method="post">
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Nom</label>
+                <input asp-for="Input.Name" class="form-control" placeholder="Ex: MediCorp" />
+                <span asp-validation-for="Input.Name" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Téléphone</label>
+                <input asp-for="Input.Phone" class="form-control" placeholder="06XXXXXXXX" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Email</label>
+                <input asp-for="Input.Email" class="form-control" placeholder="contact@exemple.com" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Ville / Adresse</label>
+                <input asp-for="Input.Address" class="form-control" placeholder="Casablanca" />
+            </div>
+
+            <div class="col-12">
+                <label class="form-label fw-semibold">Notes</label>
+                <textarea asp-for="Input.Notes" class="form-control" rows="3" placeholder="Optionnel..."></textarea>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a class="btn btn-light btn-pill" href="/Suppliers/Index">Annuler</a>
+            <button class="btn btn-primary btn-pill" type="submit">
+                <i class="bi bi-check2 me-2"></i>Enregistrer
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

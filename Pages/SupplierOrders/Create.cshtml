@@ -1,0 +1,158 @@
+﻿@page
+@model PharmaSys.Pages.SupplierOrders.CreateModel
+@{
+    ViewData["Title"] = "Nouvelle Commande Fournisseur";
+}
+
+<form method="post" class="row g-3" id="orderForm">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <!-- LEFT -->
+    <div class="col-lg-6">
+        <div class="card-soft p-3">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Fournisseur</label>
+                <select class="form-select" asp-for="Input.SupplierId" asp-items="Model.SupplierOptions">
+                    <option value="">Sélectionner</option>
+                </select>
+                <span class="text-danger" asp-validation-for="Input.SupplierId"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Date</label>
+                <input class="form-control" asp-for="Input.OrderDate" type="date" />
+                <span class="text-danger" asp-validation-for="Input.OrderDate"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Statut</label>
+                <select class="form-select" asp-for="Input.Status">
+                    <option value="Draft">Draft</option>
+                    <option value="Sent">Sent</option>
+                    <option value="Received">Received</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Notes</label>
+                <textarea class="form-control" asp-for="Input.Notes" rows="3" placeholder="Ex: livraison prévue..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="col-lg-6">
+        <div class="card-soft p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="fw-bold">Articles</div>
+                <button type="button" class="btn btn-light btn-pill btn-sm" id="clearItems">
+                    <i class="bi bi-trash me-1"></i>Vider
+                </button>
+            </div>
+
+            <!-- ligne d'ajout -->
+            <div class="row g-2 align-items-center">
+                <div class="col-6">
+                    <select class="form-select" id="medSelect">
+                        @foreach (var m in Model.Medications)
+                        {
+                            <option value="@m.Id">@m.Name (@m.Code)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-3">
+                    <input class="form-control" id="qty" type="number" min="1" value="1" />
+                </div>
+                <div class="col-2">
+                    <input class="form-control" id="unitPrice" type="number" step="0.01" value="0" />
+                </div>
+                <div class="col-1 d-grid">
+                    <button type="button" class="btn btn-primary btn-pill" id="addItem">
+                        <i class="bi bi-plus-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-3 d-flex flex-column gap-2" id="itemsBox"></div>
+
+            <hr />
+
+            <div class="d-flex justify-content-end gap-2">
+                <a class="btn btn-light btn-pill" href="/SupplierOrders/Index">Annuler</a>
+                <button class="btn btn-success btn-pill" type="submit">
+                    <i class="bi bi-check2 me-2"></i>Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        const items = [];
+        const box = document.getElementById("itemsBox");
+        const form = document.getElementById("orderForm");
+
+        function addHidden(name, value){
+          const inp = document.createElement("input");
+          inp.type="hidden";
+          inp.name=name;
+          inp.value=value;
+          form.appendChild(inp);
+        }
+
+        function rebuildHidden(){
+          document.querySelectorAll("input[name^='Input.Items']").forEach(x=>x.remove());
+          items.forEach((it, i)=>{
+            addHidden(`Input.Items[${i}].MedicationId`, it.medId);
+            addHidden(`Input.Items[${i}].Quantity`, it.qty);
+            addHidden(`Input.Items[${i}].UnitPrice`, it.price);
+          });
+        }
+
+        function render(){
+          box.innerHTML="";
+          items.forEach((it, idx)=>{
+            const div = document.createElement("div");
+            div.className="card-soft p-2";
+            div.innerHTML = `
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-semibold">${it.label}</div>
+                  <div class="text-muted" style="font-size:12px;">Qté: ${it.qty} | Prix: ${it.price}</div>
+                </div>
+                <button type="button" class="btn btn-sm btn-light btn-pill" onclick="removeItem(${idx})">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>`;
+            box.appendChild(div);
+          });
+          rebuildHidden();
+        }
+
+        window.removeItem = function(i){
+          items.splice(i,1);
+          render();
+        }
+
+        document.getElementById("addItem").addEventListener("click", ()=>{
+          const sel = document.getElementById("medSelect");
+          const medId = parseInt(sel.value);
+          const label = sel.options[sel.selectedIndex].text;
+          const qty = parseInt(document.getElementById("qty").value || "1");
+          const price = parseFloat(document.getElementById("unitPrice").value || "0");
+
+          if(qty <= 0) return;
+
+          const exist = items.find(x=>x.medId===medId);
+          if(exist){ exist.qty += qty; exist.price = price; }
+          else items.push({medId, label, qty, price});
+          render();
+        });
+
+        document.getElementById("clearItems").addEventListener("click", ()=>{
+          items.length=0;
+          render();
+        });
+    </script>
+}

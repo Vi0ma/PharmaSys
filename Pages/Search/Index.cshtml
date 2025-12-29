@@ -1,0 +1,79 @@
+﻿@page
+@model PharmaSys.Pages.Search.IndexModel
+@{
+    ViewData["Title"] = "Recherche";
+}
+
+<h2 class="fw-bold mb-1">Résultats</h2>
+<div class="text-muted mb-3">Recherche : <b>@Model.Query</b></div>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card-soft p-3">
+            <div class="fw-semibold mb-2">Médicaments</div>
+            @if (!Model.Medications.Any())
+            {
+                <div class="text-muted">Aucun résultat.</div>
+            }
+            else
+            {
+                <ul class="list-unstyled mb-0">
+                    @foreach (var m in Model.Medications)
+                    {
+                        <li class="py-1">
+                            <a href="/Medications/Details?id=@m.Id" class="text-decoration-none">
+                                @m.Name @m.Dosage <span class="text-muted">(@m.Code)</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card-soft p-3">
+            <div class="fw-semibold mb-2">Clients</div>
+            @if (!Model.Clients.Any())
+            {
+                <div class="text-muted">Aucun résultat.</div>
+            }
+            else
+            {
+                <ul class="list-unstyled mb-0">
+                    @foreach (var c in Model.Clients)
+                    {
+                        <li class="py-1">
+                            <a href="/Clients/Details?id=@c.Id" class="text-decoration-none">
+                                @c.FullName <span class="text-muted">(@c.Code)</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card-soft p-3">
+            <div class="fw-semibold mb-2">Ventes (Factures)</div>
+            @if (!Model.Sales.Any())
+            {
+                <div class="text-muted">Aucun résultat.</div>
+            }
+            else
+            {
+                <ul class="list-unstyled mb-0">
+                    @foreach (var s in Model.Sales)
+                    {
+                        <li class="py-1">
+                            <a href="/Sales/Details?id=@s.Id" class="text-decoration-none">
+                                @s.InvoiceNo <span class="text-muted">(@s.SaleDate.ToString("yyyy-MM-dd"))</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+</div>

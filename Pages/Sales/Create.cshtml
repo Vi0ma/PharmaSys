@@ -1,0 +1,233 @@
+﻿@page
+@model PharmaSys.Pages.Sales.CreateModel
+@{
+    ViewData["Title"] = "Nouvelle Vente";
+}
+
+<div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+        <h2 class="fw-bold mb-1">Nouvelle Vente</h2>
+        <div class="text-muted">Ajoute des médicaments et valide la facture</div>
+    </div>
+    <a class="btn btn-light btn-pill" href="/Sales/Index"><i class="bi bi-x-lg"></i></a>
+</div>
+
+<div class="row g-3">
+    <!-- LEFT: selection -->
+    <div class="col-lg-7">
+        <div class="card-soft p-3">
+
+            <!-- ✅ Client: Vente rapide (juste un input) -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Client</label>
+                <select class="form-select" id="clientId">
+                    <option value="0">Vente rapide (sans client)</option>
+                </select>
+                <div class="text-muted" style="font-size:12px;">(Tu peux ajouter la liste des clients plus tard)</div>
+            </div>
+
+            <!-- ✅ Ordonnance désactivée (pour éviter erreurs) -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Ordonnance (optionnel)</label>
+                <select class="form-select" id="prescriptionId">
+                    <option value="">—</option>
+                </select>
+            </div>
+
+            <div class="mb-2">
+                <label class="form-label fw-semibold">Ajouter un médicament</label>
+                <input id="searchMed" class="form-control" placeholder="Rechercher par nom ou code..." />
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Stock</th>
+                            <th>Prix</th>
+                            <th class="text-end">Ajouter</th>
+                        </tr>
+                    </thead>
+                    <tbody id="medList">
+                        @foreach (var m in Model.Medications)
+                        {
+                            <tr class="medRow">
+                                <td>
+                                    <div class="fw-semibold">@m.Name @m.Dosage</div>
+                                    <div class="text-muted" style="font-size:12px;">@m.Code</div>
+                                </td>
+                                <td class="text-muted">@m.Stock</td>
+                                <td class="fw-semibold">@m.SalePrice.ToString("0.##")</td>
+                                <td class="text-end">
+                                    <button type="button"
+                                            class="btn btn-sm btn-primary btn-pill addBtn"
+                                            data-id="@m.Id"
+                                            data-name="@($"{m.Name} {m.Dosage}")"
+                                            data-price="@m.SalePrice"
+                                            data-stock="@m.Stock">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: cart -->
+    <div class="col-lg-5">
+        <form method="post" class="card-soft p-3" id="saleForm">
+            <input type="hidden" name="Input.ClientId" id="hClientId" value="0" />
+            <input type="hidden" name="Input.PrescriptionId" id="hPrescriptionId" value="" />
+            <input type="hidden" name="Input.PaymentMethod" id="hPayMethod" />
+            <input type="hidden" name="Input.Paid" id="hPaid" />
+
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="fw-bold">Panier</div>
+                <button type="button" class="btn btn-light btn-pill btn-sm" id="clearCart">
+                    <i class="bi bi-trash me-1"></i>Vider
+                </button>
+            </div>
+
+            <div id="cartItems" class="d-flex flex-column gap-2"></div>
+
+            <hr />
+
+            <div class="mb-2">
+                <label class="form-label fw-semibold">Mode de paiement</label>
+                <select class="form-select" id="payMethod">
+                    <option value="Cash">Espèces</option>
+                    <option value="Card">Carte</option>
+                    <option value="Credit">Crédit</option>
+                </select>
+            </div>
+
+            <div class="mb-2">
+                <label class="form-label fw-semibold">Montant payé (MAD)</label>
+                <input class="form-control" id="paid" type="number" step="0.01" value="0" />
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between mt-3">
+                <div class="text-muted">Total</div>
+                <div class="fw-bold fs-4" id="total">0 MAD</div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <a class="btn btn-light btn-pill" href="/Sales/Index">Annuler</a>
+                <button class="btn btn-success btn-pill" type="submit" id="btnSubmit">
+                    <i class="bi bi-check2 me-2"></i>Valider Vente
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const cart = []; // {id,name,price,qty}
+        const cartEl = document.getElementById('cartItems');
+        const totalEl = document.getElementById('total');
+
+        function renderCart(){
+          cartEl.innerHTML = '';
+          let total = 0;
+
+          cart.forEach((it, idx) => {
+            const line = (it.price * it.qty);
+            total += line;
+
+            const div = document.createElement('div');
+            div.className = "card-soft p-2";
+            div.innerHTML = `
+              <div class="d-flex justify-content-between">
+                <div>
+                  <div class="fw-semibold">${it.name}</div>
+                  <div class="text-muted" style="font-size:12px;">${it.price} MAD</div>
+                </div>
+                <button type="button" class="btn btn-sm btn-light btn-pill" onclick="removeItem(${idx})">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+
+              <div class="row g-2 mt-1">
+                <div class="col-6">
+                  <input class="form-control form-control-sm" type="number" min="1" value="${it.qty}"
+                    onchange="updateQty(${idx}, this.value)">
+                </div>
+                <div class="col-6 text-end">
+                  <div class="fw-semibold">${line.toFixed(2)} MAD</div>
+                </div>
+              </div>
+            `;
+            cartEl.appendChild(div);
+          });
+
+          totalEl.innerText = total.toFixed(2) + " MAD";
+
+          // rebuild hidden inputs for Items
+          document.querySelectorAll("input[name^='Input.Items']").forEach(x => x.remove());
+          cart.forEach((it, i) => {
+            addHidden(`Input.Items[${i}].MedicationId`, it.id);
+            addHidden(`Input.Items[${i}].Quantity`, it.qty);
+            addHidden(`Input.Items[${i}].UnitPrice`, it.price);
+          });
+        }
+
+        function addHidden(name, value){
+          const inp = document.createElement('input');
+          inp.type = 'hidden';
+          inp.name = name;
+          inp.value = value;
+          document.getElementById('saleForm').appendChild(inp);
+        }
+
+        window.removeItem = function(i){ cart.splice(i,1); renderCart(); }
+        window.updateQty = function(i,v){ cart[i].qty = Math.max(1, parseInt(v||1)); renderCart(); }
+
+        document.querySelectorAll('.addBtn').forEach(btn=>{
+          btn.addEventListener('click', ()=>{
+            const id = parseInt(btn.dataset.id);
+            const name = btn.dataset.name;
+            const price = parseFloat(btn.dataset.price);
+
+            const exist = cart.find(x=>x.id===id);
+            if(exist) exist.qty += 1;
+            else cart.push({id,name,price,qty:1});
+            renderCart();
+          });
+        });
+
+        document.getElementById('clearCart').addEventListener('click', ()=>{
+          cart.length = 0;
+          renderCart();
+        });
+
+        document.getElementById('searchMed').addEventListener('input', (e)=>{
+          const v = e.target.value.toLowerCase();
+          document.querySelectorAll('#medList tr').forEach(tr=>{
+            tr.style.display = tr.innerText.toLowerCase().includes(v) ? '' : 'none';
+          });
+        });
+
+        document.getElementById('saleForm').addEventListener('submit', (e)=>{
+          if(cart.length === 0){
+            e.preventDefault();
+            alert("Ajoute au moins un médicament au panier.");
+            return;
+          }
+
+          document.getElementById('hClientId').value = document.getElementById('clientId').value;
+
+          const pres = document.getElementById('prescriptionId').value;
+          document.getElementById('hPrescriptionId').value = pres || "";
+
+          document.getElementById('hPayMethod').value = document.getElementById('payMethod').value;
+          document.getElementById('hPaid').value = document.getElementById('paid').value;
+        });
+
+        renderCart();
+    </script>
+}

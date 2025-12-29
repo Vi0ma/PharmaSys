@@ -1,0 +1,70 @@
+﻿@page
+@model PharmaSys.Pages.Sales.DetailsModel
+@{
+    ViewData["Title"] = "Détails Vente";
+}
+
+<div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+        <h2 class="fw-bold mb-1">Détails Vente</h2>
+        <div class="text-muted">@Model.Sale.InvoiceNo</div>
+    </div>
+    <a class="btn btn-light btn-pill" href="/Sales/Index"><i class="bi bi-x-lg"></i></a>
+</div>
+
+<div class="card-soft p-3 mb-3">
+    <div class="row g-2">
+        <div class="col-md-4">
+            <div class="text-muted">Date</div>
+            <!-- ✅ SaleDate -->
+            <div class="fw-semibold">@Model.Sale.SaleDate.ToString("yyyy-MM-dd HH:mm")</div>
+        </div>
+        <div class="col-md-4">
+            <div class="text-muted">Client</div>
+            <div class="fw-semibold">@((Model.Sale.Client != null) ? Model.Sale.Client.FullName : "Vente rapide")</div>
+        </div>
+        <div class="col-md-4">
+            <div class="text-muted">Paiement</div>
+            <div class="fw-semibold">@Model.Sale.PaymentMethod - @Model.Sale.Status</div>
+        </div>
+    </div>
+</div>
+
+<div class="card-soft p-3">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Médicament</th>
+                    <th>Qté</th>
+                    <th>Prix</th>
+                    <th>Remise</th>
+                    <th class="text-end">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var it in Model.Sale.Items)
+                {
+                    var line = (it.UnitPrice * it.Quantity) - it.Discount;
+                    <tr>
+                        <td>@it.Medication?.Name</td>
+                        <td>@it.Quantity</td>
+                        <td>@it.UnitPrice.ToString("0.##")</td>
+                        <td>@it.Discount.ToString("0.##")</td>
+                        <td class="text-end fw-semibold">@line.ToString("0.##") MAD</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <hr />
+    <div class="d-flex justify-content-between">
+        <div class="text-muted">Total</div>
+        <div class="fw-bold">@Model.Sale.Total.ToString("0.##") MAD</div>
+    </div>
+    <div class="d-flex justify-content-between">
+        <div class="text-muted">Payé</div>
+        <div class="fw-bold">@Model.Sale.Paid.ToString("0.##") MAD</div>
+    </div>
+</div>

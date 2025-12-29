@@ -1,0 +1,106 @@
+﻿@page
+@model PharmaSys.Pages.Alerts.IndexModel
+@{
+    ViewData["Title"] = "Alertes";
+}
+
+<div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+        <h2 class="fw-bold mb-1">Alertes</h2>
+        <div class="text-muted">Stock bas & dates de péremption</div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- LOW STOCK -->
+    <div class="col-lg-6">
+        <div class="card-soft p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="fw-bold">Rupture / Stock bas</div>
+                <span class="badge-soft" style="background:#ffecec;color:#e11d48;">
+                    @Model.LowStock.Count
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Catégorie</th>
+                            <th>Stock</th>
+                            <th>Min</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var m in Model.LowStock)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@m.Name @m.Dosage <div class="text-muted" style="font-size:12px;">@m.Code</div></td>
+                                <td><span class="badge-soft" style="background:#eef4ff;color:#2f6df6;">@m.Category?.Name</span></td>
+                                <td><span class="badge-soft" style="background:#ffecec;color:#e11d48;">@m.Stock</span></td>
+                                <td class="text-muted">@m.StockMin</td>
+                            </tr>
+                        }
+                        @if (!Model.LowStock.Any())
+                        {
+                            <tr><td colspan="4" class="text-muted">Aucune alerte stock ✅</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXPIRATION -->
+    <div class="col-lg-6">
+        <div class="card-soft p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="fw-bold">Péremption (≤ 30 jours)</div>
+                <span class="badge-soft" style="background:#fff7ed;color:#f59e0b;">
+                    @Model.Expiring.Count
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Catégorie</th>
+                            <th>Expiration</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var m in Model.Expiring)
+                        {
+                            var exp = m.ExpirationDate ?? DateTime.MaxValue;
+                            var isExpired = exp.Date < DateTime.Today;
+
+                            <tr>
+                                <td class="fw-semibold">@m.Name @m.Dosage <div class="text-muted" style="font-size:12px;">@m.Code</div></td>
+                                <td><span class="badge-soft" style="background:#eef4ff;color:#2f6df6;">@m.Category?.Name</span></td>
+                                <td class="text-muted">@exp.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    @if (isExpired)
+                                    {
+                                        <span class="badge-soft" style="background:#ffecec;color:#e11d48;">Expiré</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-soft" style="background:#fff7ed;color:#f59e0b;">Bientôt</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Expiring.Any())
+                        {
+                            <tr><td colspan="4" class="text-muted">Aucune alerte péremption ✅</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

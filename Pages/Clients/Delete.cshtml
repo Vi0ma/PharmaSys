@@ -1,0 +1,22 @@
+﻿@page
+@model PharmaSys.Pages.Clients.DeleteModel
+@{
+    ViewData["Title"] = "Supprimer Client";
+}
+
+<div class="card-soft p-4" style="max-width:900px;">
+    <h3 class="fw-bold">Supprimer Client</h3>
+    <p class="text-muted">Tu es sûr de vouloir supprimer ce client ?</p>
+
+    <div class="card-soft p-3 mb-3">
+        <div class="fw-semibold">@Model.Client.FullName</div>
+        <div class="text-muted">@Model.Client.Code • @Model.Client.Phone</div>
+    </div>
+
+    <form method="post">
+        <button class="btn btn-danger btn-pill" type="submit">
+            <i class="bi bi-trash me-2"></i>Supprimer
+        </button>
+        <a class="btn btn-light btn-pill" href="/Clients/Index">Annuler</a>
+    </form>
+</div>

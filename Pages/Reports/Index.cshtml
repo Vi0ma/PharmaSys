@@ -1,0 +1,64 @@
+﻿@page
+@model PharmaSys.Pages.Reports.IndexModel
+@{
+    ViewData["Title"] = "Rapports";
+}
+
+<div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+        <h2 class="fw-bold mb-1">Rapports</h2>
+        <div class="text-muted">Ventes, top produits, rentabilité</div>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-lg-4">
+        <div class="card-soft p-3">
+            <div class="text-muted">Ventes Aujourd’hui</div>
+            <div class="fw-bold" style="font-size:34px;">@Model.TodaySales.ToString("0.##") DH</div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card-soft p-3">
+            <div class="text-muted">Ventes du Mois</div>
+            <div class="fw-bold" style="font-size:34px;">@Model.MonthSales.ToString("0.##") DH</div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card-soft p-3">
+            <div class="text-muted">Ventes de l’Année</div>
+            <div class="fw-bold" style="font-size:34px;">@Model.YearSales.ToString("0.##") DH</div>
+        </div>
+    </div>
+</div>
+
+<div class="card-soft p-3 mb-3">
+    <div class="fw-bold mb-2">Top 10 Produits vendus</div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Quantité</th>
+                    <th>Chiffre d’affaires</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var x in Model.TopProducts)
+                {
+                    <tr>
+                        <td class="fw-semibold">@x.Name</td>
+                        <td class="text-muted">@x.Quantity</td>
+                        <td class="fw-semibold">@x.Revenue.ToString("0.##") DH</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card-soft p-3">
+    <div class="fw-bold mb-1">Rentabilité (estimation)</div>
+    <div class="text-muted">Basé sur PurchasePrice dans Médicaments</div>
+    <div class="fw-bold" style="font-size:34px;color:#16a34a;">@Model.ProfitEstimate.ToString("0.##") DH</div>
+</div>

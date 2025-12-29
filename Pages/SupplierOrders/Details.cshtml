@@ -1,0 +1,124 @@
+﻿@page
+@model PharmaSys.Pages.SupplierOrders.DetailsModel
+@{
+    ViewData["Title"] = "Détails Commande";
+    var o = Model.Order;
+
+    string bg = o.Status == "Received" ? "#eafff1" :
+                o.Status == "Sent" ? "#eef4ff" :
+                o.Status == "Cancelled" ? "#ffecec" : "#fff7ed";
+
+    string fg = o.Status == "Received" ? "#16a34a" :
+                o.Status == "Sent" ? "#2f6df6" :
+                o.Status == "Cancelled" ? "#e11d48" : "#f59e0b";
+}
+
+<div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+        <h2 class="fw-bold mb-1">Commande @o.OrderNumber</h2>
+        <div class="text-muted">Fournisseur : <span class="fw-semibold">@o.Supplier?.Name</span></div>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-light btn-pill" href="/SupplierOrders/Index"><i class="bi bi-arrow-left me-2"></i>Retour</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card-soft p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="fw-bold">Informations</div>
+                <span class="badge-soft" style="background:@bg;color:@fg;">@o.Status</span>
+            </div>
+
+            <hr class="my-3" />
+
+            <div class="d-flex flex-column gap-2 text-muted" style="font-size:14px;">
+                <div><i class="bi bi-calendar-event me-2"></i>@o.OrderDate.ToString("yyyy-MM-dd")</div>
+                <div><i class="bi bi-box-seam me-2"></i>@o.Items.Count articles</div>
+                <div><i class="bi bi-chat-left-text me-2"></i>@(string.IsNullOrWhiteSpace(o.Notes) ? "—" : o.Notes)</div>
+            </div>
+
+            <hr class="my-3" />
+
+            @if (o.Status != "Received" && o.Status != "Cancelled")
+            {
+                <form method="post" asp-page-handler="Receive" asp-route-id="@o.Id" class="d-grid gap-2">
+                    <button class="btn btn-success btn-pill" type="submit">
+                        <i class="bi bi-check2-circle me-2"></i>Réceptionner (mettre en stock)
+                    </button>
+                </form>
+
+                <form method="post" asp-page-handler="Cancel" asp-route-id="@o.Id" class="d-grid mt-2">
+                    <button class="btn btn-outline-danger btn-pill" type="submit">
+                        <i class="bi bi-x-circle me-2"></i>Annuler la commande
+                    </button>
+                </form>
+
+                <div class="text-muted mt-2" style="font-size:12px;">
+                    * Réceptionner augmente automatiquement le stock de chaque médicament.
+                </div>
+            }
+            else if (o.Status == "Received")
+            {
+                <div class="alert alert-success mb-0 rounded-4">
+                    <i class="bi bi-check2-circle me-2"></i>
+                    Cette commande est déjà réceptionnée. Le stock a été mis à jour.
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-danger mb-0 rounded-4">
+                    <i class="bi bi-x-circle me-2"></i>
+                    Cette commande est annulée.
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card-soft p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="fw-bold">Lignes de commande</div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Médicament</th>
+                            <th>Qté</th>
+                            <th>Coût unitaire</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            decimal total = 0;
+                        }
+                        @foreach (var it in o.Items)
+                        {
+                            var line = it.UnitPrice * it.Quantity;
+                            total += line;
+
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">@it.Medication?.Name @it.Medication?.Dosage</div>
+                                    <div class="text-muted" style="font-size:12px;">ID: @it.MedicationId</div>
+                                </td>
+                                <td class="fw-semibold">@it.Quantity</td>
+                                <td class="text-end">@it.UnitPrice.ToString("0.##") MAD</td>
+                                <td class="fw-semibold">@line.ToString("0.##") MAD</td>
+                            </tr>
+                        }
+
+                        <tr>
+                            <td colspan="3" class="text-end text-muted">TOTAL</td>
+                            <td class="fw-bold fs-5">@total.ToString("0.##") MAD</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

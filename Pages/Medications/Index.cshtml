@@ -1,0 +1,128 @@
+﻿@page
+@model PharmaSys.Pages.Medications.IndexModel
+@{
+    ViewData["Title"] = "Médicaments";
+}
+
+<div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+        <h2 class="fw-bold mb-1">Gestion des Médicaments</h2>
+        <div class="text-muted">@Model.Medications.Count produits en stock</div>
+    </div>
+
+    <a class="btn btn-primary btn-pill" href="/Medications/Create">
+        <i class="bi bi-plus-lg me-2"></i>Ajouter Médicament
+    </a>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<div class="card-soft p-3">
+    <div class="d-flex gap-2 mb-3 flex-wrap">
+        <div class="searchbox d-flex align-items-center gap-2" style="flex:1; min-width:260px;">
+            <i class="bi bi-search text-muted"></i>
+            <input id="qMed" placeholder="Rechercher par nom, code ou catégorie..." />
+        </div>
+
+        <button type="button" class="btn btn-light btn-pill">
+            <i class="bi bi-funnel me-2"></i>Filtres
+        </button>
+
+        <!-- ✅ EXPORT -->
+        <form method="post" asp-page-handler="Export" class="d-inline">
+            <button type="submit" class="btn btn-light btn-pill">
+                <i class="bi bi-download me-2"></i>Exporter
+            </button>
+        </form>
+
+        <!-- ✅ IMPORT (CSV) -->
+        <form method="post" asp-page-handler="Import" enctype="multipart/form-data" class="d-inline">
+            <label class="btn btn-light btn-pill mb-0" style="cursor:pointer;">
+                <i class="bi bi-upload me-2"></i>Importer
+                <input type="file" name="CsvFile" accept=".csv" hidden onchange="this.form.submit()" />
+            </label>
+        </form>
+
+        <!-- ✅ Template CSV (optionnel) -->
+        <form method="post" asp-page-handler="Template" class="d-inline">
+            <button type="submit" class="btn btn-outline-secondary btn-pill">
+                <i class="bi bi-filetype-csv me-2"></i>Template CSV
+            </button>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>CODE</th>
+                    <th>PRODUIT</th>
+                    <th>CATÉGORIE</th>
+                    <th>STOCK</th>
+                    <th>PRIX</th>
+                    <th>EXPIRATION</th>
+                    <th>EMPL.</th>
+                    <th class="text-end">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody id="medRows">
+                @foreach (var m in Model.Medications)
+                {
+                    <tr>
+                        <td class="text-muted">@m.Code</td>
+                        <td>
+                            <div class="fw-semibold">@m.Name @m.Dosage</div>
+                            <div class="text-muted" style="font-size:12px;">@m.Manufacturer</div>
+                        </td>
+                        <td>
+                            <span class="badge-soft" style="background:#eef4ff;color:#2f6df6;">
+                                @m.Category?.Name
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge-soft" style="background:#eafff1;color:#16a34a;">
+                                @m.Stock unités
+                            </span>
+                        </td>
+                        <td class="fw-semibold">@m.SalePrice.ToString("0.##") MAD</td>
+                        <td class="text-muted">@m.ExpirationDate?.ToString("yyyy-MM-dd")</td>
+                        <td class="text-muted">@m.Location</td>
+                        <td class="text-end">
+                            <a class="btn btn-light btn-pill btn-sm" href="/Medications/Edit?id=@m.Id">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+
+                            <a class="btn btn-sm btn-light btn-pill" href="/Medications/Delete?id=@m.Id">
+                                <i class="bi bi-trash text-danger"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-muted mt-2" style="font-size:12px;">
+        Import CSV : Code;Name;Dosage;Manufacturer;Barcode;Category;Stock;StockMin;PurchasePrice;SalePrice;ExpiryDate;Location;Supplier
+        (Date au format yyyy-MM-dd)
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const q = document.getElementById('qMed');
+        q?.addEventListener('input', () => {
+          const v = q.value.toLowerCase();
+          document.querySelectorAll('#medRows tr').forEach(tr => {
+            tr.style.display = tr.innerText.toLowerCase().includes(v) ? '' : 'none';
+          });
+        });
+    </script>
+}

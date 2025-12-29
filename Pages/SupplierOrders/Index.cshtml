@@ -1,0 +1,51 @@
+﻿@page
+@model PharmaSys.Pages.SupplierOrders.IndexModel
+@{
+    ViewData["Title"] = "Commandes Fournisseurs";
+}
+
+<div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+        <h2 class="fw-bold mb-1">Commandes Fournisseurs</h2>
+        <div class="text-muted">@Model.Orders.Count commandes</div>
+    </div>
+
+    <a class="btn btn-primary btn-pill" href="/SupplierOrders/Create">
+        <i class="bi bi-plus-lg me-2"></i>Nouvelle Commande
+    </a>
+</div>
+
+<div class="card-soft p-3">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>N° COMMANDE</th>
+                    <th>FOURNISSEUR</th>
+                    <th>DATE</th>
+                    <th>ARTICLES</th>
+                    <th>STATUT</th>
+                    <th class="text-end">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in Model.Orders)
+                {
+                    string bg = o.Status == "Received" ? "#eafff1" : o.Status == "Sent" ? "#eef4ff" : o.Status == "Cancelled" ? "#ffecec" : "#fff7ed";
+                    string fg = o.Status == "Received" ? "#16a34a" : o.Status == "Sent" ? "#2f6df6" : o.Status == "Cancelled" ? "#e11d48" : "#f59e0b";
+
+                    <tr>
+                        <td class="fw-semibold">@o.OrderNumber</td>
+                        <td class="text-muted">@o.Supplier?.Name</td>
+                        <td class="text-muted">@o.OrderDate.ToString("yyyy-MM-dd")</td>
+                        <td class="text-muted">@o.Items.Count</td>
+                        <td><span class="badge-soft" style="background:@bg;color:@fg;">@o.Status</span></td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-light btn-pill" href="/SupplierOrders/Details?id=@o.Id"><i class="bi bi-eye"></i></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

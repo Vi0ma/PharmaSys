@@ -1,0 +1,75 @@
+﻿@page
+@model PharmaSys.Pages.Prescriptions.IndexModel
+@{
+    ViewData["Title"] = "Ordonnances";
+}
+
+<div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+        <h2 class="fw-bold mb-1">Ordonnances</h2>
+        <div class="text-muted">@Model.Prescriptions.Count ordonnances</div>
+    </div>
+
+    <a class="btn btn-primary btn-pill" href="/Prescriptions/Create">
+        <i class="bi bi-plus-lg me-2"></i>Ajouter Ordonnance
+    </a>
+</div>
+
+<div class="card-soft p-3">
+    <div class="d-flex gap-2 mb-3">
+        <div class="searchbox d-flex align-items-center gap-2" style="flex:1;">
+            <i class="bi bi-search text-muted"></i>
+            <input id="qPre" placeholder="Rechercher numéro / médecin / client..." />
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>N°</th>
+                    <th>MÉDECIN</th>
+                    <th>CLIENT</th>
+                    <th>DATE</th>
+                    <th>EXPIRATION</th>
+                    <th>STATUT</th>
+                    <th class="text-end">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody id="preRows">
+                @foreach (var p in Model.Prescriptions)
+                {
+                    var expired = p.ExpiryDate.Date < DateTime.Today;
+                    var bg = expired ? "#ffecec" : "#eafff1";
+                    var fg = expired ? "#e11d48" : "#16a34a";
+                    var label = expired ? "Expirée" : "Valide";
+
+                    <tr>
+                        <td class="fw-semibold">@p.Number</td>
+                        <td class="text-muted">@p.DoctorName</td>
+                        <td class="text-muted">@p.Client?.FullName</td>
+                        <td class="text-muted">@p.IssueDate.ToString("yyyy-MM-dd")</td>
+                        <td class="text-muted">@p.ExpiryDate.ToString("yyyy-MM-dd")</td>
+                        <td><span class="badge-soft" style="background:@bg;color:@fg;">@label</span></td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-light btn-pill" href="/Prescriptions/Edit?id=@p.Id"><i class="bi bi-pencil"></i></a>
+                            <a class="btn btn-sm btn-light btn-pill" href="/Prescriptions/Delete?id=@p.Id"><i class="bi bi-trash text-danger"></i></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const q = document.getElementById('qPre');
+        q?.addEventListener('input', () => {
+          const v = q.value.toLowerCase();
+          document.querySelectorAll('#preRows tr').forEach(tr => {
+            tr.style.display = tr.innerText.toLowerCase().includes(v) ? '' : 'none';
+          });
+        });
+    </script>
+}

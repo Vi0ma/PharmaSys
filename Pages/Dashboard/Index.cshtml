@@ -1,0 +1,220 @@
+﻿@page
+@model PharmaSys.Pages.Dashboard.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<style>
+    .fade-up {
+        animation: fadeUp .6s ease both;
+    }
+
+    /* ✅ IMPORTANT IN RAZOR: use @@keyframes */
+    @@keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .hover-card {
+        transition: .2s ease;
+    }
+
+        .hover-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,.06);
+        }
+</style>
+
+<div class="fade-up">
+
+    <!-- Header banner (déjà chez toi) -->
+    <div class="card-soft p-4 mb-4" style="background: linear-gradient(90deg,#0ea5e9,#22c55e); color:#fff; border:0;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="m-0">Bonjour, Admin Pharmacie</h2>
+                <div style="opacity:.9">Voici votre aperçu quotidien</div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/Sales/Create" class="btn btn-light btn-pill"><i class="bi bi-plus"></i> Nouvelle Vente</a>
+                <a href="/Medications/Index" class="btn btn-dark btn-pill"><i class="bi bi-box"></i> Gérer Stock</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-4">
+            <div class="card-soft p-3 hover-card">
+                <div class="text-muted">Chiffre d'Affaires Aujourd'hui</div>
+                <div class="fs-1 fw-bold">@Model.TodayRevenue.ToString("N0") DH</div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card-soft p-3 hover-card">
+                <div class="text-muted">Produits Vendus</div>
+                <div class="fs-1 fw-bold">@Model.TodaySoldItems</div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card-soft p-3 hover-card">
+                <div class="text-muted">Clients Servis</div>
+                <div class="fs-1 fw-bold">@Model.TodayClientsServed</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts quick -->
+    <div class="card-soft p-3 mb-4 d-flex align-items-center justify-content-between">
+        <div>
+            <div class="fw-semibold"><i class="bi bi-exclamation-triangle text-warning"></i> Alertes importantes</div>
+            <div class="text-muted">Stock bas ou péremption proche</div>
+        </div>
+        <a href="/Alerts/Index" class="btn btn-danger btn-pill">Voir</a>
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-7">
+            <div class="card-soft p-3 hover-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="fw-bold">Total Sale</div>
+                    <select id="salesPeriod" class="form-select form-select-sm" style="width:140px;">
+                        <option value="week" selected>Weekly</option>
+                        <option value="month">Monthly</option>
+                    </select>
+                </div>
+                <canvas id="salesChart" height="110"></canvas>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card-soft p-3 hover-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="fw-bold">Inventory</div>
+                    <a class="text-decoration-none" href="/Medications/Index">Voir tout →</a>
+                </div>
+                <canvas id="inventoryChart" height="110"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity + Top products -->
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div class="card-soft p-3 hover-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <div class="fw-bold">Activité Récente</div>
+                        <div class="text-muted" style="font-size:13px;">Dernières actions dans le système</div>
+                    </div>
+                    <a href="/Reports/Index" class="text-decoration-none">Voir tout →</a>
+                </div>
+
+                <div class="list-group list-group-flush">
+                    @foreach (var a in Model.RecentActivity)
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-semibold">@a.Title</div>
+                                <div class="text-muted" style="font-size:13px;">@a.Sub</div>
+                            </div>
+                            <div class="text-muted" style="font-size:12px;">
+                                <i class="bi bi-clock"></i> @a.When.ToString("dd/MM HH:mm")
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card-soft p-3 hover-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <div class="fw-bold">Top Produits</div>
+                        <div class="text-muted" style="font-size:13px;">Meilleures ventes</div>
+                    </div>
+                    <select id="topPeriod" class="form-select form-select-sm" style="width:140px;">
+                        <option value="month" selected>Ce mois</option>
+                        <option value="week">Cette semaine</option>
+                    </select>
+                </div>
+
+                <div id="topProducts">
+                    @for (int i = 0; i < Model.TopProducts.Count; i++)
+                    {
+                        var p = Model.TopProducts[i];
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="badge bg-primary rounded-pill" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;">
+                                    @(i + 1)
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">@p.Name</div>
+                                    <div class="text-muted" style="font-size:13px;">@p.Qty ventes</div>
+                                </div>
+                            </div>
+                            <div class="fw-bold">@p.Amount.ToString("N0") DH</div>
+                        </div>
+                    }
+                </div>
+
+                <a href="/Sales/Index" class="btn btn-light w-100 mt-3 btn-pill">Voir ventes</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        let salesChart, inventoryChart;
+
+        async function loadSales(period) {
+            const res = await fetch(`?handler=SalesChart&period=${period}`);
+            const data = await res.json();
+
+            if (salesChart) salesChart.destroy();
+            salesChart = new Chart(document.getElementById('salesChart'), {
+                type: 'bar',
+                data: { labels: data.labels, datasets: [{ label: 'DH', data: data.values }] },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+        }
+
+        async function loadInventory() {
+            const res = await fetch(`?handler=InventoryChart`);
+            const data = await res.json();
+
+            if (inventoryChart) inventoryChart.destroy();
+            inventoryChart = new Chart(document.getElementById('inventoryChart'), {
+                type: 'doughnut',
+                data: { labels: data.labels, datasets: [{ data: data.values }] },
+                options: { responsive: true }
+            });
+        }
+
+        // Dropdowns
+        document.getElementById("salesPeriod").addEventListener("change", e => loadSales(e.target.value));
+
+        // Top period reload = just reload whole page with period (so TopProducts updates too)
+        document.getElementById("topPeriod").addEventListener("change", e => {
+            const p = e.target.value;
+            window.location.href = `/Dashboard/Index?period=${p}`;
+        });
+
+        // Init
+        loadSales("week");
+        loadInventory();
+    </script>
+}

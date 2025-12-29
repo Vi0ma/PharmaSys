@@ -1,0 +1,65 @@
+﻿@page
+@model PharmaSys.Pages.Prescriptions.CreateModel
+@{
+    ViewData["Title"] = "Ajouter Ordonnance";
+}
+
+<div class="card-soft p-4" style="max-width:1000px;">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="fw-bold mb-0">Ajouter Ordonnance</h3>
+        <a class="btn btn-light btn-pill" href="/Prescriptions/Index"><i class="bi bi-x-lg"></i></a>
+    </div>
+
+    <form method="post">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Numéro</label>
+                <input class="form-control" asp-for="Prescription.Number" placeholder="ORD-2025-001" />
+                <span class="text-danger" asp-validation-for="Prescription.Number"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Médecin</label>
+                <input class="form-control" asp-for="Prescription.DoctorName" placeholder="Dr. ..." />
+                <span class="text-danger" asp-validation-for="Prescription.DoctorName"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Date</label>
+                <input class="form-control" asp-for="Prescription.IssueDate" type="date" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Date d'expiration</label>
+                <input class="form-control" asp-for="Prescription.ExpiryDate" type="date" />
+            </div>
+
+            <div class="col-12">
+                <label class="form-label fw-semibold">Client (optionnel)</label>
+                <select class="form-select" asp-for="Prescription.ClientId">
+                    <option value="">—</option>
+                    @foreach (var c in Model.Clients)
+                    {
+                        <option value="@c.Id">@c.FullName</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label fw-semibold">Notes</label>
+                <textarea class="form-control" asp-for="Prescription.Notes" rows="3"></textarea>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a class="btn btn-light btn-pill" href="/Prescriptions/Index">Annuler</a>
+            <button class="btn btn-primary btn-pill" type="submit">
+                <i class="bi bi-floppy me-2"></i>Enregistrer
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

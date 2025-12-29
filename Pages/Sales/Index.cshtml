@@ -1,0 +1,88 @@
+﻿@page
+@model PharmaSys.Pages.Sales.IndexModel
+@{
+    ViewData["Title"] = "Ventes";
+}
+
+<div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+        <h2 class="fw-bold mb-1">Ventes</h2>
+        <div class="text-muted">Historique des ventes</div>
+    </div>
+    <a class="btn btn-primary btn-pill" href="/Sales/Create">
+        <i class="bi bi-plus-lg me-2"></i>Nouvelle Vente
+    </a>
+</div>
+
+<div class="card-soft p-3">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Facture</th>
+                    <th>Date</th>
+                    <th>Client</th>
+                    <th>Total</th>
+                    <th>Payé</th>
+                    <th>Statut</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Sales.Count == 0)
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">Aucune vente</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var s in Model.Sales)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@s.InvoiceNo</td>
+
+                            <!-- ✅ ICI LA CORRECTION: SaleDate -->
+                            <td class="text-muted">@s.SaleDate.ToString("yyyy-MM-dd HH:mm")</td>
+
+                            <td>
+                                @if (s.Client != null)
+                                {
+                                    <span>@s.Client.FullName</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Vente rapide</span>
+                                }
+                            </td>
+
+                            <td class="fw-semibold">@s.Total.ToString("0.##") MAD</td>
+                            <td>@s.Paid.ToString("0.##") MAD</td>
+
+                            <td>
+                                @if (s.Status == "Paid")
+                                {
+                                    <span class="badge rounded-pill bg-success">Payée</span>
+                                }
+                                else if (s.Status == "Partial")
+                                {
+                                    <span class="badge rounded-pill bg-warning text-dark">Partielle</span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill bg-danger">Impayée</span>
+                                }
+                            </td>
+
+                            <td class="text-end">
+                                <a class="btn btn-light btn-sm btn-pill" href="/Sales/Details?id=@s.Id">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

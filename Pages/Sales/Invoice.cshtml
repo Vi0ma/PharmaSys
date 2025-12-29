@@ -1,0 +1,114 @@
+﻿@page
+@model PharmaSys.Pages.Sales.InvoiceModel
+@{
+    Layout = null; // page imprimable propre
+    var s = Model.Sale;
+}
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Facture @s.InvoiceNo</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body {
+            background: #fff;
+        }
+
+        .ticket {
+            max-width: 820px;
+            margin: 24px auto;
+            border: 1px solid #eee;
+            border-radius: 14px;
+            padding: 24px;
+        }
+
+        @@media print {
+            .no-print {
+                display: none;
+            }
+        }
+
+            display: none;
+        }
+
+        .ticket {
+            border: 0;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h3 class="fw-bold mb-0">PHARMACIE</h3>
+                <div class="text-muted">Facture / Ticket</div>
+            </div>
+            <div class="text-end">
+                <div class="fw-bold">@s.InvoiceNo</div>
+                <div class="text-muted">@s.SaleDate.ToString("yyyy-MM-dd HH:mm")</div>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="fw-semibold">Client</div>
+                <div class="text-muted">@((s.Client != null) ? s.Client.FullName : "Vente rapide")</div>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="fw-semibold">Ordonnance</div>
+                <div class="text-muted">@((s.Prescription != null) ? s.Prescription.Number : "—")</div>
+            </div>
+        </div>
+
+        <hr />
+
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th class="text-end">Qté</th>
+                    <th class="text-end">Prix</th>
+                    <th class="text-end">Remise</th>
+                    <th class="text-end">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    decimal total = 0;
+                }
+                @foreach (var it in s.Items)
+                {
+                    var line = (it.UnitPrice * it.Quantity) - it.Discount;
+                    total += line;
+                    <tr>
+                        <td>@it.Medication?.Name @it.Medication?.Dosage</td>
+                        <td class="text-end">@it.Quantity</td>
+                        <td class="text-end">@it.UnitPrice.ToString("0.##")</td>
+                        <td class="text-end">@it.Discount.ToString("0.##")</td>
+                        <td class="text-end">@line.ToString("0.##")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-end">
+            <div style="min-width:280px;">
+                <div class="d-flex justify-content-between"><span class="text-muted">Total</span><span class="fw-bold">@s.Total.ToString("0.##") MAD</span></div>
+                <div class="d-flex justify-content-between"><span class="text-muted">Payé</span><span class="fw-bold">@s.Paid.ToString("0.##") MAD</span></div>
+                <div class="d-flex justify-content-between"><span class="text-muted">Reste</span><span class="fw-bold">@Math.Max(0, s.Total - s.Paid).ToString("0.##") MAD</span></div>
+                <div class="d-flex justify-content-between mt-2"><span class="text-muted">Mode</span><span class="fw-bold">@s.PaymentMethod</span></div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-4 no-print">
+            <button class="btn btn-primary" onclick="window.print()">Imprimer</button>
+            <a class="btn btn-light" href="/Sales/Index">Retour</a>
+        </div>
+    </div>
+</body>
+</html>

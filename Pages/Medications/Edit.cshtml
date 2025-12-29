@@ -1,0 +1,112 @@
+﻿@page
+@model PharmaSys.Pages.Medications.EditModel
+@{
+    ViewData["Title"] = "Modifier Médicament";
+}
+
+<div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+        <h2 class="fw-bold mb-1">Modifier Médicament</h2>
+        <div class="text-muted">Mettre à jour les informations du produit</div>
+    </div>
+    <a class="btn btn-light btn-pill" href="/Medications/Index"><i class="bi bi-x-lg"></i></a>
+</div>
+
+<div class="card-soft p-3">
+    <form method="post">
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Code Produit</label>
+                <input asp-for="Input.Code" class="form-control" />
+                <span asp-validation-for="Input.Code" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Catégorie</label>
+                <select asp-for="Input.CategoryId" class="form-select">
+                    <option value="">Sélectionner</option>
+                    @foreach (var c in Model.Categories)
+                    {
+                        <option value="@c.Id">@c.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="Input.CategoryId" class="text-danger"></span>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label fw-semibold">Nom du Médicament</label>
+                <input asp-for="Input.Name" class="form-control" />
+                <span asp-validation-for="Input.Name" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Dosage</label>
+                <input asp-for="Input.Dosage" class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Fabricant</label>
+                <input asp-for="Input.Manufacturer" class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Code-barres</label>
+                <input asp-for="Input.Barcode" class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Stock</label>
+                <input asp-for="Input.Stock" type="number" class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Stock Min</label>
+                <input asp-for="Input.StockMin" type="number" class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Emplacement</label>
+                <input asp-for="Input.Location" class="form-control" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Prix d'Achat (MAD)</label>
+                <input asp-for="Input.PurchasePrice" type="number" step="0.01" class="form-control" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Prix de Vente (MAD)</label>
+                <input asp-for="Input.SalePrice" type="number" step="0.01" class="form-control" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Date d'Expiration</label>
+                <input asp-for="Input.ExpiryDate" type="date" class="form-control" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Fournisseur</label>
+                <select asp-for="Input.SupplierId" class="form-select">
+                    <option value="">Sélectionner</option>
+                    @foreach (var s in Model.Suppliers)
+                    {
+                        <option value="@s.Id">@s.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a class="btn btn-light btn-pill" href="/Medications/Index">Annuler</a>
+            <button class="btn btn-primary btn-pill" type="submit">
+                <i class="bi bi-save me-2"></i>Enregistrer
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

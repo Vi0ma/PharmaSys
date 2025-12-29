@@ -1,0 +1,64 @@
+﻿@page
+@model PharmaSys.Pages.Clients.EditModel
+@{
+    ViewData["Title"] = "Modifier Client";
+}
+
+<div class="card-soft p-4" style="max-width:1000px;">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="fw-bold mb-0">Modifier Client</h3>
+        <a class="btn btn-light btn-pill" href="/Clients/Index"><i class="bi bi-x-lg"></i></a>
+    </div>
+
+    <form method="post">
+        <input type="hidden" asp-for="Client.Id" />
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Code Client</label>
+                <input class="form-control" asp-for="Client.Code" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Dernière Visite</label>
+                <input class="form-control" asp-for="Client.LastVisit" type="date" />
+            </div>
+
+            <div class="col-12">
+                <label class="form-label fw-semibold">Nom Complet</label>
+                <input class="form-control" asp-for="Client.FullName" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Téléphone</label>
+                <input class="form-control" asp-for="Client.Phone" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Email</label>
+                <input class="form-control" asp-for="Client.Email" />
+            </div>
+
+            <div class="col-12">
+                <label class="form-label fw-semibold">Adresse</label>
+                <input class="form-control" asp-for="Client.Address" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Crédit (MAD)</label>
+                <input class="form-control" asp-for="Client.Credit" type="number" step="0.01" />
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a class="btn btn-light btn-pill" href="/Clients/Index">Annuler</a>
+            <button class="btn btn-primary btn-pill" style="background:#7c3aed;border:0;" type="submit">
+                <i class="bi bi-check2 me-2"></i>Mettre à jour
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

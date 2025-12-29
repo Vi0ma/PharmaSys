@@ -1,0 +1,89 @@
+﻿@page
+@model PharmaSys.Pages.Clients.IndexModel
+@{
+    ViewData["Title"] = "Clients";
+}
+
+<div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+        <h2 class="fw-bold mb-1">Gestion des Clients</h2>
+        <div class="text-muted">@Model.Clients.Count clients enregistrés</div>
+    </div>
+
+    <a class="btn btn-primary btn-pill" style="background:#7c3aed;border:0;" href="/Clients/Create">
+        <i class="bi bi-plus-lg me-2"></i>Nouveau Client
+    </a>
+</div>
+
+<div class="card-soft p-3 mb-3">
+    <div class="d-flex gap-2">
+        <div class="searchbox d-flex align-items-center gap-2" style="flex:1;">
+            <i class="bi bi-search text-muted"></i>
+            <input id="qClient" placeholder="Rechercher un client..." />
+        </div>
+        <button class="btn btn-light btn-pill"><i class="bi bi-funnel me-2"></i>Filtres</button>
+    </div>
+</div>
+
+<div id="clientCards" class="d-grid gap-3" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));">
+    @foreach (var c in Model.Clients)
+    {
+        var total = Model.TotalPurchases.ContainsKey(c.Id) ? Model.TotalPurchases[c.Id] : 0;
+        <div class="card-soft p-3 client-card">
+            <div class="d-flex align-items-start justify-content-between">
+                <div class="d-flex gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center"
+                         style="width:52px;height:52px;background:#f3e8ff;color:#7c3aed;">
+                        <i class="bi bi-person fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-5">@c.FullName</div>
+                        <div class="text-muted">@c.Code</div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a class="btn btn-sm btn-light btn-pill" href="/Clients/Edit?id=@c.Id"><i class="bi bi-pencil"></i></a>
+                    <a class="btn btn-sm btn-light btn-pill" href="/Clients/Delete?id=@c.Id"><i class="bi bi-trash text-danger"></i></a>
+                </div>
+            </div>
+
+            <hr class="my-3" />
+
+            <div class="d-flex flex-column gap-2 text-muted" style="font-size:14px;">
+                <div><i class="bi bi-telephone me-2"></i>@(c.Phone ?? "-")</div>
+                <div><i class="bi bi-envelope me-2"></i>@(c.Email ?? "-")</div>
+                <div><i class="bi bi-geo-alt me-2"></i>@(c.Address ?? "-")</div>
+            </div>
+
+            <hr class="my-3" />
+
+            <div class="d-flex align-items-end justify-content-between">
+                <div>
+                    <div class="text-muted" style="font-size:12px;">Total Achats</div>
+                    <div class="fw-bold fs-4">@total.ToString("0.##") MAD</div>
+                </div>
+                <div class="text-end">
+                    <div class="text-muted" style="font-size:12px;">Crédit</div>
+                    <div class="fw-bold fs-5" style="color:#16a34a;">@c.Credit.ToString("0.##") MAD</div>
+                </div>
+            </div>
+
+            <div class="text-muted mt-2" style="font-size:12px;">
+                Dernière visite: @(c.LastVisit.HasValue? c.LastVisit.Value.ToString("yyyy-MM-dd") : "-")
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        const q = document.getElementById('qClient');
+        q?.addEventListener('input', () => {
+          const v = q.value.toLowerCase();
+          document.querySelectorAll('.client-card').forEach(card => {
+            card.style.display = card.innerText.toLowerCase().includes(v) ? '' : 'none';
+          });
+        });
+    </script>
+}

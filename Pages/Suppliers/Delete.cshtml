@@ -1,0 +1,35 @@
+﻿@page
+@model PharmaSys.Pages.Suppliers.DeleteModel
+@{
+    ViewData["Title"] = "Supprimer Fournisseur";
+}
+
+<div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+        <h2 class="fw-bold mb-1 text-danger">Supprimer Fournisseur</h2>
+        <div class="text-muted">Confirmation de suppression</div>
+    </div>
+    <a class="btn btn-light btn-pill" href="/Suppliers/Index"><i class="bi bi-x-lg"></i></a>
+</div>
+
+<div class="card-soft p-3">
+    <div class="alert alert-warning">
+        <div class="fw-semibold mb-1">Attention</div>
+        <div>Tu es sur le point de supprimer ce fournisseur.</div>
+    </div>
+
+    <div class="row g-2">
+        <div class="col-md-6"><span class="text-muted">Nom:</span> <span class="fw-semibold">@Model.SupplierName</span></div>
+        <div class="col-md-6"><span class="text-muted">Téléphone:</span> <span class="fw-semibold">@Model.SupplierPhone</span></div>
+        <div class="col-md-6"><span class="text-muted">Email:</span> <span class="fw-semibold">@Model.SupplierEmail</span></div>
+        <div class="col-md-6"><span class="text-muted">Adresse:</span> <span class="fw-semibold">@Model.SupplierAddress</span></div>
+    </div>
+
+    <form method="post" class="d-flex justify-content-end gap-2 mt-4">
+        <input type="hidden" asp-for="Id" />
+        <a class="btn btn-light btn-pill" href="/Suppliers/Index">Annuler</a>
+        <button class="btn btn-danger btn-pill" type="submit">
+            <i class="bi bi-trash me-2"></i>Supprimer
+        </button>
+    </form>
+</div>
